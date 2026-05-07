@@ -1,8 +1,8 @@
 {
-  "name": "tauri-react-starter",
+  "name": "unified-game-library",
   "private": true,
-  "version": "1.0.0",
-  "description": "Desktop app template with Tauri 2, React, TypeScript & Tailwind CSS",
+  "version": "1.0.1",
+  "description": "Unified Game Library — one Windows launcher for Steam, Epic, Xbox, Riot, and more",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
