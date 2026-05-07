@@ -80,7 +80,7 @@ foreach ($p in $paths) {{
 }}
 if ($hits.Count -eq 0) {{
   # Fuzzy fallback: token overlap scoring
-  $tokens = $q -split '\s+' | Where-Object { $_.Length -ge 4 }
+  $tokens = $q -split '\s+' | Where-Object {{ $_.Length -ge 4 }}
   foreach ($p in $paths) {{
     Get-ItemProperty -Path $p -ErrorAction SilentlyContinue | ForEach-Object {{
       $dn = [string]$_.DisplayName

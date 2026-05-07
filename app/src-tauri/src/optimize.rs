@@ -16,7 +16,7 @@ pub struct OptimizeResult {
     pub backups: Vec<String>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub enum OptimizeGoal {
     HighFpsGoodGraphics,
@@ -36,6 +36,7 @@ pub fn optimize_game(entry: GameEntry, goal: OptimizeGoal) -> Result<OptimizeRes
                 notes.push(r.message);
             }
         }
+        Ok(None) => {}
         Err(e) => notes.push(format!("(Source configs) {}", e)),
     }
 
@@ -308,7 +309,10 @@ fn walk_collect_source_cfgs(
     };
     for e in rd.flatten() {
         let p = e.path();
-        let name = p.file_name().to_string_lossy().to_lowercase();
+        let name = p
+            .file_name()
+            .map(|s| s.to_string_lossy().to_lowercase())
+            .unwrap_or_default();
         if p.is_dir() {
             if name == "node_modules" || name == ".git" || name == "compatdata" {
                 continue;
