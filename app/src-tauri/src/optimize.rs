@@ -185,7 +185,14 @@ fn try_optimize_source(entry: &GameEntry, goal: OptimizeGoal) -> Result<Option<O
 
 /// Returns backup path if file was modified.
 fn apply_source_video_file(path: &Path, _goal: OptimizeGoal) -> Result<Option<String>, String> {
-    let original = fs::read_to_string(path).map_err(|e| e.to_string())?;
+    let raw = fs::read(path).map_err(|e| e.to_string())?;
+    if raw.len() > 2_000_000 {
+        return Ok(None);
+    }
+    let original = match String::from_utf8(raw) {
+        Ok(s) => s,
+        Err(_) => return Ok(None),
+    };
     let mut s = original.clone();
 
     let dword_keys = [
@@ -314,7 +321,7 @@ fn walk_collect_source_cfgs(
             .map(|s| s.to_string_lossy().to_lowercase())
             .unwrap_or_default();
         if p.is_dir() {
-            if name == "node_modules" || name == ".git" || name == "compatdata" {
+            if should_skip_source_walk_dir(&name) {
                 continue;
             }
             walk_collect_source_cfgs(p.as_path(), out, seen, depth + 1, max_depth, budget);
@@ -327,12 +334,54 @@ fn walk_collect_source_cfgs(
     }
 }
 
+fn should_skip_source_walk_dir(name_lower: &str) -> bool {
+    matches!(
+        name_lower,
+        "node_modules"
+            | ".git"
+            | "compatdata"
+            | "content"
+            | "moviesbink"
+            | "movies"
+            | "paks"
+            | "binaries"
+            | "plugins"
+            | "engine"
+            | "intermediate"
+            | "deriveddatacache"
+            | "saved"
+            | "screenshots"
+    )
+}
+
 fn is_source_cfg_file(path: &Path) -> bool {
-    let Some(name) = path.file_name().and_then(|s| s.to_str()) else {
+    let Some(ext) = path
+        .extension()
+        .and_then(|e| e.to_str())
+        .map(|s| s.to_lowercase())
+    else {
         return false;
     };
-    let n = name.to_lowercase();
-    n.contains("video") || n.ends_with("_video.txt") || n == "machine_convars.vcfg" || n == "cs2_video.txt"
+    let Some(name) = path
+        .file_name()
+        .and_then(|s| s.to_str())
+        .map(|s| s.to_lowercase())
+    else {
+        return false;
+    };
+
+    // Never treat Unreal/media assets as Valve video configs (e.g. *Video*.uasset / *.bk2).
+    match ext.as_str() {
+        "txt" => {
+            name == "video.txt"
+                || name.ends_with("_video.txt")
+                || name == "cs2_video.txt"
+                || name == "videoconfig.txt"
+        }
+        "vcfg" => name == "machine_convars.vcfg" || name.ends_with("_video.vcfg"),
+        "cfg" => name == "video.cfg" || name.ends_with("_video.cfg"),
+        _ => false,
+    }
 }
 
 fn optimize_unity_registry(company: &str, product: &str, _goal: OptimizeGoal) -> Result<OptimizeResult, String> {

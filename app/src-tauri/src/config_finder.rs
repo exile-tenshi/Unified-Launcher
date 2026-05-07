@@ -32,7 +32,7 @@ pub fn find_game_config_hints(entry: GameEntry) -> Result<Vec<ConfigHint>, Strin
 
     let mut hints: Vec<ConfigHint> = Vec::new();
 
-    if looks_like_unreal(&root) {
+    if crate::engine_detect::looks_like_unreal_shipped(&root) {
         hints.push(unreal_hints(&entry, &root));
     }
     if looks_like_unity(&root) {
@@ -55,12 +55,6 @@ pub fn find_game_config_hints(entry: GameEntry) -> Result<Vec<ConfigHint>, Strin
     }
 
     Ok(hints)
-}
-
-fn looks_like_unreal(root: &Path) -> bool {
-    root.join("Content").join("Paks").exists()
-        || root.join("Engine").exists()
-        || root.join("Binaries").join("Win64").exists()
 }
 
 fn unreal_hints(entry: &GameEntry, root: &Path) -> ConfigHint {

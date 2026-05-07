@@ -8,6 +8,10 @@ pub fn detect_game_engine(install_path: &Path, game_name: &str) -> Option<GameEn
     if let Some(u) = detect_unreal_uproject(install_path) {
         return Some(u);
     }
+    // Shipped Unreal (no .uproject) before Unity/Source — avoids tagging UE games as Source.
+    if looks_like_unreal_shipped(install_path) {
+        return None;
+    }
     if looks_like_unity(install_path) {
         if let Some((company, product)) = infer_unity_local_low(install_path, game_name) {
             return Some(GameEngine::Unity { company, product });
@@ -15,10 +19,6 @@ pub fn detect_game_engine(install_path: &Path, game_name: &str) -> Option<GameEn
     }
     if looks_like_source(install_path) {
         return Some(GameEngine::Source);
-    }
-    if looks_like_unreal_shipped(install_path) {
-        // No uproject; optimize.rs will fuzzy-match LocalAppData project name.
-        return None;
     }
     None
 }
@@ -68,9 +68,38 @@ fn detect_unreal_uproject(install_path: &Path) -> Option<GameEngine> {
 }
 
 pub fn looks_like_unreal_shipped(root: &Path) -> bool {
-    root.join("Content").join("Paks").exists()
-        || root.join("Engine").exists()
-        || (root.join("Binaries").join("Win64").exists() && root.join("Content").join("Paks").exists())
+    if unreal_shipped_markers(root) {
+        return true;
+    }
+    // Steam often uses .../common/<Game>/<Inner>/<Project>/Content/Paks — scan shallow tree.
+    let mut stack: Vec<PathBuf> = vec![root.to_path_buf()];
+    let mut checked = 0u32;
+    while let Some(dir) = stack.pop() {
+        checked += 1;
+        if checked > 280 {
+            break;
+        }
+        let Ok(rd) = fs::read_dir(&dir) else {
+            continue;
+        };
+        for e in rd.flatten() {
+            let p = e.path();
+            if !p.is_dir() {
+                continue;
+            }
+            if unreal_shipped_markers(&p) {
+                return true;
+            }
+            stack.push(p);
+        }
+    }
+    false
+}
+
+fn unreal_shipped_markers(p: &Path) -> bool {
+    p.join("Content").join("Paks").exists()
+        || p.join("Engine").exists()
+        || (p.join("Binaries").join("Win64").exists() && p.join("Content").join("Paks").exists())
 }
 
 fn looks_like_unity(root: &Path) -> bool {
