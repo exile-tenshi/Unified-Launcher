@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Tenshi Web Hub</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0b0c10">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="tenshi_logo.png">
+    <link rel="icon" type="image/png" href="tenshi_logo.png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;800;900&family=Outfit:wght@400;700;900&display=swap" rel="stylesheet">
+    <!-- Cloudflare Turnstile — loaded dynamically only when login screen is visible -->
+    <script>
+    var _turnstileLoaded = false;
+    function loadTurnstile() {
+        if (_turnstileLoaded) return;
+        _turnstileLoaded = true;
+        var s = document.createElement('script');
+        s.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=onTurnstileLoad';
+        s.async = true;
+        document.head.appendChild(s);
+    }
+    function onTurnstileLoad() {
+        if (!window.turnstile) return;
+        try {
+            var loginEl = document.getElementById('login-turnstile');
+            if (loginEl && !loginEl.dataset.rendered) {
+                turnstile.render('#login-turnstile', {
+                    sitekey: '0x4AAAAAAC3jvazfhjvZhtgW',
+                    theme: 'dark',
+                    appearance: 'interaction-only',
+                    retry: 'never',
+                    'error-callback': function() { console.warn('[Turnstile] Login challenge failed'); }
+                });
+                loginEl.dataset.rendered = '1';
+            }
+            var regEl = document.getElementById('reg-turnstile');
+            if (regEl && !regEl.dataset.rendered) {
+                turnstile.render('#reg-turnstile', {
+                    sitekey: '0x4AAAAAAC3jvazfhjvZhtgW',
+                    theme: 'dark',
+                    appearance: 'interaction-only',
+                    retry: 'never',
+                    'error-callback': function() { console.warn('[Turnstile] Register challenge failed'); }
+                });
+                regEl.dataset.rendered = '1';
+            }
+            var forgotTs = document.getElementById('forgot-turnstile');
+            if (forgotTs && !forgotTs.dataset.rendered && forgotTs.closest('#forgot-password-panel') && forgotTs.closest('#forgot-password-panel').style.display !== 'none') {
+                turnstile.render('#forgot-turnstile', {
+                    sitekey: '0x4AAAAAAC3jvazfhjvZhtgW',
+                    theme: 'dark',
+                    appearance: 'interaction-only',
+                    retry: 'never',
+                    'error-callback': function() { console.warn('[Turnstile] Forgot-password challenge failed'); }
+                });
+                forgotTs.dataset.rendered = '1';
+            }
+        } catch(e) { console.warn('[Turnstile] Skipped:', e.message); }
+    }
+    </script>
+</head>
+<body>
+    <!-- Animated background -->
+    <div class="glass-background">
+        <div class="glow-orb orb-1"></div>
+        <div class="glow-orb orb-2"></div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         AUTH SCREEN  (default visible state)
+    ══════════════════════════════════════════ -->
+    <div id="auth-view">
+
+        <!-- Language selector top-right -->
+        <div id="auth-lang-picker">
+            <select id="auth-lang-select" onchange="setLanguage(this.value)" title="Language">
+                <option value="en">🇺🇸 EN</option>
+                <option value="es">🇪🇸 ES</option>
+                <option value="fr">🇫🇷 FR</option>
+                <option value="de">🇩🇪 DE</option>
+                <option value="ja">🇯🇵 JA</option>
+                <option value="zh">🇨🇳 ZH</option>
+                <option value="pt">🇧🇷 PT</option>
+                <option value="ar">🇸🇦 AR</option>
+                <option value="ko">🇰🇷 KO</option>
+                <option value="ru">🇷🇺 RU</option>
+            </select>
+        </div>
+
+        <!-- ── Main auth card ── -->
+        <div class="auth-box glass-panel" id="login-box">
+            <img src="tenshi_logo.png" alt="Tenshi Logo" class="auth-logo">
+            <h2 class="auth-title" style="font-family:'Outfit'">TENSHI</h2>
+            <p class="auth-subtitle" data-i18n="tagline">Secure • Encrypted • Connected</p>
+
+            <!-- Tabs -->
+            <div class="auth-tabs">
+                <button class="auth-tab active" id="tab-signin" onclick="switchTab('signin')" data-i18n="sign_in">Sign In</button>
+                <button class="auth-tab" id="tab-register" onclick="switchTab('register')" data-i18n="create_account">Create Account</button>
+            </div>
+
+            <!-- Sign In Panel -->
+            <div id="signin-panel">
+                <!-- SSO Row -->
+                <div class="sso-row">
+                    <button class="sso-btn" onclick="ssoLogin('google')" title="Sign in with Google">
+                        <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+                        Google
+                    </button>
+                    <button class="sso-btn" onclick="ssoLogin('microsoft')" title="Sign in with Microsoft">
+                        <svg width="18" height="18" viewBox="0 0 24 24"><rect x="1" y="1" width="10" height="10" fill="#F25022"/><rect x="13" y="1" width="10" height="10" fill="#7FBA00"/><rect x="1" y="13" width="10" height="10" fill="#00A4EF"/><rect x="13" y="13" width="10" height="10" fill="#FFB900"/></svg>
+                        Microsoft
+                    </button>
+                    <button class="sso-btn" onclick="ssoLogin('apple')" title="Sign in with Apple">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.7 9.05 7.4c1.42.07 2.41.74 3.24.8 1.23-.24 2.42-.93 3.73-.84 1.58.13 2.77.76 3.53 1.93-3.27 1.96-2.49 5.86.5 6.98-.59 1.59-1.36 3.16-3 4.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg>
+                        Apple
+                    </button>
+                </div>
+
+                <div class="or-divider"><span data-i18n="or_continue">or continue with</span></div>
+
+                <input type="text" id="username" placeholder="Username" data-i18n-placeholder="username" autocomplete="username">
+                <input type="password" id="password" placeholder="Password" data-i18n-placeholder="password" autocomplete="current-password">
+                <button type="button" onclick="showForgotPasswordPanel()" style="align-self:flex-end;background:none;border:none;color:var(--accent-blue);cursor:pointer;font-size:13px;padding:2px 0 8px;text-decoration:underline;">Forgot password?</button>
+                <p id="auth-status" class="auth-status-msg"></p>
+                <button class="btn-primary-full" onclick="login()" data-i18n="sign_in">Sign In</button>
+            </div>
+
+            <!-- Forgot password (not logged in — email verification code) -->
+            <div id="forgot-password-panel" style="display:none;">
+                <p style="color:var(--text-muted);font-size:13px;line-height:1.45;margin-bottom:12px;">Enter the username or email on your account. We will email a 6-digit code. It expires in 15 minutes.</p>
+                <input type="text" id="forgot-identifier" placeholder="Username or email" autocomplete="username" style="margin-bottom:10px;">
+                <div id="forgot-turnstile" style="margin:8px 0;min-height:4px;"></div>
+                <button type="button" class="btn-primary-full" onclick="forgotPasswordSendCode()" style="margin-bottom:14px;">Send verification code</button>
+                <hr style="border:none;border-top:1px solid rgba(255,255,255,0.08);margin:14px 0;">
+                <p style="color:var(--text-muted);font-size:12px;margin-bottom:8px;">Then enter the code from your email and choose a new password.</p>
+                <input type="text" id="forgot-code" placeholder="6-digit code" maxlength="6" inputmode="numeric" autocomplete="one-time-code" style="margin-bottom:10px;">
+                <input type="password" id="forgot-new-password" placeholder="New password" autocomplete="new-password" style="margin-bottom:10px;">
+                <button type="button" class="btn-primary-full" onclick="forgotPasswordComplete()" style="margin-bottom:10px;">Update password</button>
+                <p id="forgot-status" class="auth-status-msg"></p>
+                <button type="button" onclick="hideForgotPasswordPanel()" style="width:100%;background:rgba(255,255,255,0.06);color:var(--text-muted);border:1px solid var(--glass-border);padding:10px;border-radius:8px;cursor:pointer;font-size:13px;margin-top:8px;">← Back to sign in</button>
+            </div>
+
+            <!-- Register Panel -->
+            <div id="register-panel" style="display:none;">
+                <input type="text" id="reg-username" placeholder="Username" data-i18n-placeholder="username" autocomplete="username">
+                <input type="password" id="reg-password" placeholder="Password" data-i18n-placeholder="password" autocomplete="new-password">
+                <input type="email" id="reg-email" placeholder="Email Address" data-i18n-placeholder="email" autocomplete="email">
+
+                <!-- Phone row with country code -->
+                <div class="phone-row">
+                    <select id="country-code" class="country-select">
+                        <!-- Populated by buildCountrySelect() -->
+                    </select>
+                    <input type="tel" id="reg-phone" placeholder="Phone (optional)" data-i18n-placeholder="phone" autocomplete="tel" style="flex:1; margin:0;">
+                </div>
+
+                <p id="reg-status" class="auth-status-msg"></p>
+                <button class="btn-primary-full" onclick="registerNew()" data-i18n="create_account">Create Account</button>
+            </div>
+        </div>
+
+        <!-- ── Verification Panel ── -->
+        <div class="auth-box glass-panel" id="verify-box" style="display:none; text-align:center;">
+            <img src="tenshi_logo.png" alt="Logo" class="auth-logo">
+            <h2 style="font-family:'Outfit'; color:white;" data-i18n="verify">Verify Your Account</h2>
+            <p style="color:var(--text-muted); font-size:14px; margin: 10px 0 24px;" id="verify-desc" data-i18n="verification_sent">A 6-digit code has been sent to your contact.</p>
+
+            <input type="text" id="verify-code" placeholder="000000" data-i18n-placeholder="enter_code" maxlength="6" style="text-align:center; font-size:28px; letter-spacing:8px; font-weight:bold;">
+            <p id="verify-status" class="auth-status-msg"></p>
+            <button class="btn-primary-full" onclick="verifyAndLogin()" data-i18n="verify">Verify &amp; Sign In</button>
+            <button onclick="resendCode()" style="background:transparent; border:none; color:var(--accent-blue); cursor:pointer; margin-top:12px; font-size:13px;" data-i18n="resend_code">Resend Code</button>
+        </div>
+
+        <!-- ── Payment Panel ── -->
+        <div class="auth-box glass-panel" id="payment-box" style="display:none; text-align:center;">
+            <h2 style="color:white; font-family:'Outfit'">License Required</h2>
+            <p id="license-desc" style="color:var(--text-muted); font-size:14px; margin-bottom: 20px;">Web Access: $10 / New Device: $5</p>
+
+            <div style="background:rgba(0,0,0,0.5); padding: 15px; border-radius: 12px; margin-bottom: 20px;">
+                <span style="color:var(--text-muted); font-size:12px; text-transform:uppercase; letter-spacing:1px;">Total Due</span>
+                <h1 id="price-display" style="color:#23a559; margin-top:5px;">$5.00</h1>
+            </div>
+
+            <div style="display:flex; gap:10px;">
+                <input type="text" id="promo-code" placeholder="Enter Coupon Code" style="margin:0; text-align:center;" maxlength="100">
+                <button onclick="applyPromo()" style="margin:0; background:transparent; border:1px solid var(--accent-blue); width:auto; padding:0 20px; color:white; border-radius:8px; cursor:pointer; white-space:nowrap;">Apply</button>
+            </div>
+
+            <hr style="border:0; border-top:1px solid rgba(255,255,255,0.1); margin: 25px 0;">
+
+            <button onclick="payAndLink()" style="background:#635BFF; color:white; font-weight:600; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; font-size:16px; display:flex; justify-content:center; align-items:center; gap:8px; padding:12px; border-radius:6px; border:none; width:100%; cursor:pointer; box-shadow:0 4px 6px rgba(50,50,93,0.11),0 1px 3px rgba(0,0,0,0.08);">
+                <span style="opacity:0.9;">Pay with</span>
+                <strong style="font-weight:900; font-size:18px; letter-spacing:-0.5px;">stripe</strong>
+            </button>
+            <p id="pay-status" style="color:#f25f5c; font-size:13px; margin-top:15px;"></p>
+        </div>
+
+    </div><!-- /auth-view -->
+
+
+    <!-- ══════════════════════════════════════════
+         ROLE MODAL  (shared, outside main views)
+    ══════════════════════════════════════════ -->
+    <div id="role-modal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); z-index:200; width:420px; max-width:92vw;">
+        <div class="glass-panel" style="padding:30px; border-radius:16px; box-shadow:0 0 60px rgba(0,0,0,0.8);">
+            <h2 style="color:white; margin-bottom:16px; font-family:'Outfit';" data-i18n="channel_roles">Channel Roles</h2>
+            <select id="channel-select" style="width:100%; padding:10px; margin-bottom:12px; background:rgba(0,0,0,0.5); color:white; border:1px solid var(--glass-border); border-radius:8px;"></select>
+            <div id="role-list" style="color:white; text-align:left; margin-bottom:12px; max-height:160px; overflow-y:auto; padding:12px; background:rgba(0,0,0,0.3); border-radius:8px;"></div>
+            <div style="display:flex; gap:8px;">
+                <button onclick="saveRoles()" style="flex:1; background:var(--accent-blue); color:white; border:none; padding:10px; border-radius:8px; cursor:pointer; font-weight:bold;" data-i18n="save">Save</button>
+                <button onclick="document.getElementById('role-modal').style.display='none'" style="flex:1; background:var(--accent-red); color:white; border:none; padding:10px; border-radius:8px; cursor:pointer; font-weight:bold;" data-i18n="cancel">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ══════════════════════════════════════════
+         SETTINGS OVERLAY
+    ══════════════════════════════════════════ -->
+    <div id="settings-overlay" style="display:none;">
+        <div id="settings-panel">
+            <!-- Settings Nav -->
+            <div id="settings-nav">
+                <div style="display:flex; align-items:center; gap:10px; margin-bottom:24px;">
+                    <img src="tenshi_logo.png" alt="Logo" style="width:28px; height:28px;">
+                    <span style="font-family:'Outfit'; font-weight:900; font-size:16px;">Settings</span>
+                </div>
+
+                <button class="settings-nav-btn active" onclick="showSettingsTab('profile')" data-i18n="profile">👤 Profile</button>
+                <button class="settings-nav-btn" onclick="showSettingsTab('connections')" data-i18n="connected_accounts">🔗 Connections</button>
+                <button class="settings-nav-btn" onclick="showSettingsTab('notifications')" data-i18n="notifications">🔔 Notifications</button>
+                <button class="settings-nav-btn" onclick="showSettingsTab('language')" data-i18n="language">🌐 Language &amp; Region</button>
+                <button class="settings-nav-btn" onclick="showSettingsTab('appearance')" data-i18n="appearance">🎨 Appearance</button>
+                <button class="settings-nav-btn" onclick="showSettingsTab('voice_video')">🎙️ Voice &amp; Video</button>
+
+                <div style="flex-grow:1;"></div>
+                <hr style="border:0; border-top:1px solid rgba(255,255,255,0.08); margin:16px 0;">
+                <button class="settings-nav-btn danger" onclick="doLogout()" data-i18n="logout">⏻ Log Out</button>
+            </div>
+
+            <!-- Settings Content -->
+            <div id="settings-content">
+                <button id="settings-close-btn" onclick="toggleSettings()" title="Close">✕</button>
+                <div id="settings-body">
+                    <!-- Rendered by JS -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ══════════════════════════════════════════
+         MAIN APP VIEW  (hidden until login)
+    ══════════════════════════════════════════ -->
+    <div id="app-screen" style="display:none; flex-direction:column; height:100vh;">
+
+        <!-- Tap-outside overlay for mobile left panel -->
+        <div id="mobile-panel-overlay" onclick="closeMobilePanel()"></div>
+
+        <!-- TOP BAR -->
+        <div id="app-topbar">
+            <!-- Logo / hamburger (hamburger visible on mobile) -->
+            <div style="display:flex; align-items:center; gap:4px; padding:0 8px; min-width:52px; justify-content:center;">
+                <button id="mobile-hamburger" class="topbar-icon-btn" onclick="toggleMobilePanel()" title="Menu" style="display:none; font-size:20px;">☰</button>
+                <img src="tenshi_logo.png" alt="Tenshi" style="width:30px; height:30px; cursor:pointer;" onclick="loadFriendsView()">
+            </div>
+
+            <!-- Server name / context -->
+            <div style="padding:0 8px; font-weight:bold; font-size:14px; color:white; min-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" id="topbar-server-name">Direct Messages</div>
+
+            <!-- Divider -->
+            <div style="width:1px; height:24px; background:rgba(255,255,255,0.1);"></div>
+
+            <!-- Channel title -->
+            <div style="padding:0 12px; font-size:13px; color:var(--text-muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; flex-grow:1; display:flex; align-items:center; gap:10px;" id="topbar-channel-name">
+                <span id="topbar-channel-label" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0;">Select a chat</span>
+                <button type="button" id="dm-refresh-btn" onclick="_tenshiDmRefresh()" title="Refresh chats &amp; temps" style="display:none;flex-shrink:0;width:32px;height:32px;border:none;border-radius:50%;padding:4px;background:rgba(255,255,255,0.06);cursor:pointer;align-items:center;justify-content:center;">
+                    <img src="tenshi_logo.png" alt="" style="width:22px;height:22px;display:block;" class="tenshi-spin-target">
+                </button>
+            </div>
+
+            <!-- Search -->
+            <div class="topbar-search">
+                <input type="text" placeholder="Search..." data-i18n-placeholder="search" oninput="filterChannels(this.value)">
+            </div>
+
+            <!-- Icon buttons -->
+            <button class="topbar-icon-btn" onclick="toggleMemberPanel()" title="Members">👥</button>
+            <button class="topbar-icon-btn" onclick="toggleSettings()" title="Settings">⚙️</button>
+
+            <!-- Avatar -->
+            <div id="topbar-avatar" onclick="toggleSettings()" title="Profile">T</div>
+        </div>
+
+        <!-- APP BODY -->
+        <div id="app-body">
+
+            <!-- SERVER RAIL -->
+            <div id="server-rail">
+                <!-- Home icon -->
+                <div class="rail-icon" title="Home" onclick="loadFriendsView()" id="rail-home">
+                    <img src="tenshi_logo.png" alt="Home" style="width:28px; height:28px;">
+                </div>
+                <div class="rail-separator"></div>
+                <!-- Server icons injected by JS -->
+                <div id="rail-servers"></div>
+                <div class="rail-separator" style="margin-top:auto;"></div>
+                <!-- AI button -->
+                <div class="rail-icon rail-icon-ai" title="Tenshi AI" onclick="loadAIChat()">🤖</div>
+                <!-- Admin button placeholder -->
+                <div id="rail-admin-btn" style="display:none;">
+                    <div class="rail-icon rail-icon-admin" title="Admin Panel" onclick="loadAdminPanel()">🛡️</div>
+                </div>
+            </div>
+
+            <!-- LEFT PANEL -->
+            <div id="left-panel">
+                <div class="left-panel-header">
+                    <span id="sidebar-header" style="font-weight:bold; font-size:15px; color:white; flex-grow:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" data-i18n="direct_messages">Direct Messages</span>
+                    <button style="background:transparent; border:none; color:var(--text-muted); cursor:pointer; font-size:18px; padding:0;" onclick="openRoleManager()" id="roles-gear-btn" title="Manage Roles">⚙️</button>
+                </div>
+
+                <!-- Admin sponsored slot -->
+                <div id="admin-sponsored-slot" style="margin:8px; padding:12px; background:linear-gradient(135deg,rgba(88,101,242,0.1),rgba(0,0,0,0.4)); border:1px solid rgba(88,101,242,0.3); border-radius:10px; position:relative; overflow:hidden;">
+                    <div style="position:absolute; top:-10px; right:-10px; width:40px; height:40px; background:rgba(88,101,242,0.1); border-radius:50%; filter:blur(10px);"></div>
+                    <span style="font-size:9px; font-weight:900; color:var(--accent-blue); letter-spacing:1px; text-transform:uppercase;">Promoted</span>
+                    <h4 id="promo-title" style="margin:4px 0; color:white; font-size:13px;">Tenshi Pro Upgrade</h4>
+                    <p id="promo-desc" style="margin:0; color:#aaa; font-size:11px; line-height:1.4;">Get low-latency voice and exclusive server badges.</p>
+                    <div style="margin-top:8px; font-size:10px; color:var(--accent-blue); cursor:pointer; font-weight:bold;" onclick="window.open('https://tenshi.lol/upgrade')">Learn More →</div>
+                </div>
+
+                <!-- Channel / DM list -->
+                <div id="left-panel-list" id="dynamic-list" style="flex-grow:1; overflow-y:auto;">
+                    <!-- Populated by JS -->
+                </div>
+
+                <!-- User status bar (bottom of left panel) -->
+                <div id="user-statusbar">
+                    <div style="position:relative; flex-shrink:0;">
+                        <div id="statusbar-avatar" style="width:32px; height:32px; border-radius:50%; background:var(--accent-blue); display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:14px; color:white;">T</div>
+                        <div class="status-dot online" id="statusbar-dot"></div>
+                    </div>
+                    <div style="flex-grow:1; overflow:hidden; min-width:0;">
+                        <div id="statusbar-username" style="font-size:13px; font-weight:bold; color:white; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">User</div>
+                        <div id="statusbar-status" style="font-size:11px; color:var(--text-muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">Online</div>
+                    </div>
+                    <div style="display:flex; gap:4px; flex-shrink:0;">
+                        <button class="topbar-icon-btn" id="mute-btn" onclick="toggleMute()" title="Mute/Unmute" style="font-size:15px;">🎤</button>
+                        <button class="topbar-icon-btn" id="deafen-btn" onclick="toggleDeafen()" title="Deafen/Undeafen" style="font-size:15px;">🎧</button>
+                        <button class="topbar-icon-btn" onclick="toggleSettings()" title="User Settings" style="font-size:15px;">⚙️</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CHAT AREA -->
+            <div id="chat-area">
+                <!-- Chat Header -->
+                <div id="chat-header">
+                    <span id="current-chat" style="font-weight:bold; font-size:15px; color:white; flex-grow:1;">Select a chat</span>
+                    <div style="display:flex; gap:8px; align-items:center;">
+                        <a href="https://github.com/exile-tenshi/Tenshi/raw/main/SecureVoiceApp/TenshiVoice.exe" download style="background:#5865F2; color:white; border:none; padding:7px 14px; border-radius:8px; text-decoration:none; font-weight:bold; font-size:13px;">💻 Desktop App</a>
+                        <a href="https://github.com/exile-tenshi/Tenshi/raw/main/SecureVoiceApp/TenshiVoice.exe" download style="background:#ed4245; color:white; border:none; padding:7px 14px; border-radius:8px; text-decoration:none; font-weight:bold; font-size:13px;">🎮 Game</a>
+                    </div>
+                </div>
+
+                <!-- Video/Voice area -->
+                <div id="video-container" style="display:none; padding:16px; background:rgba(0,0,0,0.5); border-bottom:1px solid var(--glass-border); text-align:center;">
+                    <div style="display:flex; justify-content:center; gap:20px; flex-wrap:wrap;" id="remote-videos">
+                        <div>
+                            <h4 style="color:var(--accent-blue); margin-bottom:5px;">You</h4>
+                            <video id="local-video" autoplay muted style="width:320px; height:240px; border-radius:10px; border:2px solid #5865F2; background:black;"></video>
+                        </div>
+                    </div>
+                    <canvas id="hidden-canvas" style="display:none;"></canvas>
+                    <!-- Voice controls overlay -->
+                    <div style="display:flex; gap:12px; justify-content:center; margin-top:12px;">
+                        <button onclick="toggleMute()" id="voice-mute-btn" style="background:rgba(255,255,255,0.1); border:none; color:white; padding:8px 16px; border-radius:8px; cursor:pointer;">🎤 Mute</button>
+                        <button onclick="toggleDeafen()" id="voice-deafen-btn" style="background:rgba(255,255,255,0.1); border:none; color:white; padding:8px 16px; border-radius:8px; cursor:pointer;">🎧 Deafen</button>
+                        <button onclick="leaveVoiceWithPresence()" style="background:var(--accent-red); border:none; color:white; padding:8px 16px; border-radius:8px; cursor:pointer; font-weight:bold;">📴 Disconnect</button>
+                    </div>
+                </div>
+
+                <!-- Messages scroll area -->
+                <div class="messages-scroll" id="message-container"></div>
+
+                <!-- Message input bar -->
+                <div id="message-input-bar">
+                    <div id="message-input-wrapper">
+                        <button style="background:transparent; border:none; color:var(--text-muted); font-size:20px; cursor:pointer; padding:0 4px; flex-shrink:0;">+</button>
+                        <input type="text" id="msg-input" placeholder="Encrypt and send..." data-i18n-placeholder="message_placeholder" style="flex:1; background:transparent; border:none; color:white; font-size:14px; outline:none; padding:4px 0;">
+                        <button onclick="sendMessage()" class="send-btn" title="Send">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MEMBER PANEL (right side, collapsible) -->
+            <div id="member-panel">
+                <div class="member-panel-header"><span id="member-panel-summary">Members</span></div>
+                <div id="member-list-content" style="flex-grow:1; overflow-y:auto;">
+                    <!-- Rendered by renderMemberList() -->
+                </div>
+            </div>
+
+        </div><!-- /app-body -->
+    </div><!-- /app-screen -->
+
+
+    <!-- ══════════════════════════════════════════
+         LEGACY hub-view compatibility shim
+         (JS loadHub shows app-screen but references
+          some IDs from old layout; bridge here)
+    ══════════════════════════════════════════ -->
+    <!-- Hidden bridge: dynamic-list is inside left-panel-list. We alias it. -->
+    <div id="hub-view" style="display:none;">
+        <!-- legacy references resolved via JS aliases in webapp.js v3 -->
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         SERVER LIST SIDEBAR compatibility shim
+    ══════════════════════════════════════════ -->
+    <div id="server-list-sidebar" style="display:none;"></div>
+
+    <script src="webapp.js?v=3.1"></script>
+    <script>
+        // ── Mobile: scroll focused input into view using visualViewport ──
+        const _scrollableSelector = '.messages-scroll, #left-panel-list, #server-rail, #member-list-content, #settings-body';
+        document.addEventListener('focusin', (e) => {
+            if (['INPUT','TEXTAREA','SELECT'].includes(e.target.tagName)) {
+                if (window.visualViewport) {
+                    const onResize = () => { e.target.scrollIntoView({ behavior: 'smooth', block: 'center' }); };
+                    window.visualViewport.addEventListener('resize', onResize, { once: true });
+                } else {
+                    setTimeout(() => { e.target.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 400);
+                }
+            }
+        });
+        // Prevent body scroll bounce on iOS (allow scrollable children)
+        document.addEventListener('touchmove', (e) => {
+            if (!e.target.closest(_scrollableSelector)) e.preventDefault();
+        }, { passive: false });
+
+        // ── Mobile hamburger: show on small screens ──
+        function _checkHamburger() {
+            const btn = document.getElementById('mobile-hamburger');
+            if (btn) btn.style.display = window.innerWidth <= 600 ? 'flex' : 'none';
+        }
+        window.addEventListener('resize', _checkHamburger);
+        document.addEventListener('DOMContentLoaded', _checkHamburger);
+
+        function toggleMobilePanel() {
+            const p = document.getElementById('left-panel');
+            const o = document.getElementById('mobile-panel-overlay');
+            if (!p) return;
+            const open = p.classList.toggle('mobile-open');
+            if (o) o.style.display = open ? 'block' : 'none';
+        }
+        function closeMobilePanel() {
+            const p = document.getElementById('left-panel');
+            const o = document.getElementById('mobile-panel-overlay');
+            if (p) p.classList.remove('mobile-open');
+            if (o) o.style.display = 'none';
+        }
+    </script>
+</body>
+</html>

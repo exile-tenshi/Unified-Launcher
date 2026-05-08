@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Signing in…</title>
+<style>
+  body { margin: 0; background: #1e1f22; color: #fff; font-family: sans-serif;
+         display: flex; align-items: center; justify-content: center; height: 100vh; }
+  .msg { text-align: center; }
+  .spinner { width: 36px; height: 36px; border: 3px solid #5865F2; border-top-color: transparent;
+             border-radius: 50%; animation: spin .7s linear infinite; margin: 0 auto 14px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+<div class="msg">
+  <div class="spinner"></div>
+  <p>Completing sign-in…</p>
+</div>
+<script>
+(function () {
+    // Parse both query string (?code=…) and URL fragment (#id_token=…)
+    const params = new URLSearchParams(window.location.search);
+    const fragment = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+
+    const code     = params.get('code')     || fragment.get('code');
+    const id_token = params.get('id_token') || fragment.get('id_token');
+    const state    = params.get('state')    || fragment.get('state');
+    const error    = params.get('error')    || fragment.get('error');
+
+    const provider = (state || '').split(':')[0] || 'unknown';
+
+    if (window.opener && !window.opener.closed) {
+        window.opener.postMessage(
+            { type: 'sso_callback', provider, code, id_token, state, error },
+            window.location.origin
+        );
+    }
+
+    window.close();
+})();
+</script>
+</body>
+</html>

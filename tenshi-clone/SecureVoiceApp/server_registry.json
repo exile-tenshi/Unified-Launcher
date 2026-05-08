@@ -1,0 +1,19 @@
+{
+    "x": {
+        "hwid": "07af374f12a932b6067d93ed52f706f86aba6126a83e166ef95f365a90bb3dde",
+        "pwd_hash": "",
+        "friends": [],
+        "pending_reqs": [],
+        "servers": ["srv_0", "srv_1", "srv_2", "srv_3", "srv_4"],
+        "bio": "",
+        "pronouns": "",
+        "banner_color": "#2b2d31",
+        "status": "Online",
+        "connections": {},
+        "allowed_hwids": [
+            "07af374f12a932b6067d93ed52f706f86aba6126a83e166ef95f365a90bb3dde"
+        ],
+        "is_admin": true,
+        "free_access": true
+    }
+}

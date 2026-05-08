@@ -1,0 +1,28 @@
+name: Deploy to Vultr VPS
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          password: ${{ secrets.VPS_PASSWORD }}
+          script: |
+            cd /var/www/tenshi
+            git pull origin main
+            cd SecureVoiceApp
+            pip3 install -r ../Cloud_Server_Build/requirements.txt --quiet
+            fuser -k 6000/tcp || true
+            fuser -k 6001/tcp || true
+            fuser -k 8080/tcp || true
+            sleep 2
+            nohup python3 -u server.py > /tmp/tenshi.log 2>&1 &
+            sleep 3
+            echo "Deploy complete. Server PID: $(lsof -ti:6000)"

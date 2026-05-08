@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tenshi — Secure Encrypted Chat, Voice &amp; RPG Game</title>
+    <meta name="description" content="Tenshi is an all-in-one secure communications platform with end-to-end encrypted messaging, voice &amp; video chat, and a built-in 2D RPG game. Free to download.">
+    <meta name="keywords" content="secure chat, encrypted messaging, end-to-end encryption, voice chat, video call, RPG game, Tenshi, private messaging, E2EE">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://tenshi.lol/">
+
+    <!-- Open Graph -->
+    <meta property="og:type"        content="website">
+    <meta property="og:url"         content="https://tenshi.lol/">
+    <meta property="og:site_name"   content="Tenshi">
+    <meta property="og:title"       content="Tenshi — Secure Encrypted Chat, Voice &amp; RPG Game">
+    <meta property="og:description" content="All-in-one platform with end-to-end encrypted messaging, voice &amp; video chat, and a built-in 2D RPG. Free desktop app for Windows.">
+    <meta property="og:image"       content="https://tenshi.lol/tenshi_logo.png">
+    <meta property="og:image:alt"   content="Tenshi logo">
+
+    <!-- Twitter / X Card -->
+    <meta name="twitter:card"        content="summary">
+    <meta name="twitter:site"        content="@tenshi_lol">
+    <meta name="twitter:title"       content="Tenshi — Secure Encrypted Chat, Voice &amp; RPG Game">
+    <meta name="twitter:description" content="All-in-one platform with end-to-end encrypted messaging, voice &amp; video chat, and a built-in 2D RPG. Free desktop app for Windows.">
+    <meta name="twitter:image"       content="https://tenshi.lol/tenshi_logo.png">
+
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "Tenshi",
+      "url": "https://tenshi.lol",
+      "description": "All-in-one secure communications platform with end-to-end encrypted messaging, voice and video chat, and a built-in 2D RPG game.",
+      "applicationCategory": "CommunicationApplication",
+      "operatingSystem": "Windows",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+      "screenshot": "https://tenshi.lol/tenshi_logo.png",
+      "featureList": "End-to-end encryption, Voice chat, Video call, Direct messages, Servers, 2D RPG game"
+    }
+    </script>
+
+    <link rel="stylesheet" href="styles.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0b0c10">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="tenshi_logo.png">
+    <link rel="icon" type="image/png" href="tenshi_logo.png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;800;900&family=Outfit:wght@400;700;900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="glass-background">
+        <div class="glow-orb orb-1"></div>
+        <div class="glow-orb orb-2"></div>
+        <div class="glow-orb orb-3"></div>
+    </div>
+
+    <nav class="navbar">
+        <div class="nav-left">
+            <h1 class="logo">
+                <img src="tenshi_logo.png" alt="Tenshi Logo" class="logo-img">
+                TENSHI<span>.lol</span>
+            </h1>
+        </div>
+        <div class="nav-right">
+            <a href="#features" class="nav-link">Features</a>
+            <a href="#public-servers" class="nav-link">Public Servers</a>
+            <a href="#security" class="nav-link">Encryption</a>
+            <button class="nav-btn" onclick="window.location.href='hub.html'">Login Web</button>
+        </div>
+    </nav>
+
+    <main class="hero-section">
+        <div class="hero-content glass-panel">
+            <h2 class="title-main">Enter the <span>Tenshi</span> Network.</h2>
+            <p class="subtitle">Hardware-locked End-to-End encrypted voice, 5FPS video optimization, and a seamless 2D RPG experience.</p>
+            
+            <div class="action-buttons">
+                <!-- Clickable whether you want to game or not -->
+                <button class="btn-primary game-btn" id="btn-game">
+                    <span class="icon">🎮</span> 
+                    <div class="btn-text">
+                        <strong>GET THE APP</strong>
+                        <small>Desktop Client: Always Free</small>
+                    </div>
+                </button>
+                <button class="btn-secondary chat-btn" id="btn-chat">
+                    <span class="icon">💬</span> 
+                    <div class="btn-text">
+                        <strong>WEB PORTAL</strong>
+                        <small>$10 One-Time License</small>
+                    </div>
+                </button>
+            </div>
+        </div>
+
+        <div class="server-showcase glass-panel" id="public-servers">
+            <h3>🌎 Public Hubs</h3>
+            <div class="server-list" id="server-list">
+                <div style="color:rgba(255,255,255,0.5); padding:20px;">Fetching Live Servers...</div>
+            </div>
+            <button class="view-all-btn">View All Servers</button>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2026 Tenshi Network. End-to-End Encrypted via AES-256 Fernet.</p>
+    </footer>
+
+    <script src="script.js?v=2.0"></script>
+</body>
+</html>

@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# PyInstaller build artifacts
+SecureVoiceApp/build/
+SecureVoiceApp/dist/
+*.spec
+
+# Misc
+.DS_Store
+*.log
+
+# Local env / venv / tooling (never commit secrets or interpreter trees)
+SecureVoiceApp/.venv/
+Cloud_Server_Build/.env
+Cloud_Server_Build/*.exe
+
+# Desktop build output and local runtime state
+SecureVoiceApp/*.exe
+SecureVoiceApp/session.json
+SecureVoiceApp/**/messages.db
