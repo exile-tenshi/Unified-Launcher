@@ -1,6 +1,0 @@
-User-agent: *
-Allow: /
-Disallow: /hub.html
-Disallow: /oauth-callback.html
-
-Sitemap: https://tenshi.lol/sitemap.xml
